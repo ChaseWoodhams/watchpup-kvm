@@ -52,6 +52,7 @@ Post-v1 or later work includes H.264, Wi-Fi, virtual media, cloud access, HTTPS-
 - ESP-IDF skeleton baseline: `docs/research/esp-idf-skeleton-baseline.md`
 - Initial hardware configuration contract: `docs/hardware/initial-hardware-configuration-contract.md`
 - Diagnostics endpoint contract: `docs/firmware/diagnostics-endpoint-contract.md`
+- HID control protocol and safety spec: `docs/firmware/hid-control-protocol-and-safety-spec.md`
 - Architecture decisions: `docs/adrs/`
 
 ## Vocabulary
