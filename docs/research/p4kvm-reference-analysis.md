@@ -126,11 +126,14 @@ Rewrite these areas for WatchPup rather than porting directly:
 
 ## Recommended Near-Term ADRs
 
-- ADR: initial hardware target and supported capture mode.
-- ADR: LAN-only/no-auth development boundary versus future authentication requirements.
+These are now captured in `docs/adrs/`:
+
+- ADR: product vision and v1 boundary.
+- ADR: initial firmware platform, hardware target, and supported capture mode.
+- ADR: diagnostics-first subsystem boundaries.
 - ADR: web asset build and embedding strategy.
 - ADR: frame ownership and streaming backpressure model.
-- ADR: input-control policy, including single active controller and emergency release behavior.
+- ADR: input-control policy, including mandatory auth, single active controller, and emergency release behavior.
 
 ## Bottom Line
 
