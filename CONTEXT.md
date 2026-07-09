@@ -51,6 +51,7 @@ Post-v1 or later work includes H.264, Wi-Fi, virtual media, cloud access, HTTPS-
 - DIY cost/BOM research: `docs/research/watchpup-diy-cost-bom.md`
 - ESP-IDF skeleton baseline: `docs/research/esp-idf-skeleton-baseline.md`
 - Initial hardware configuration contract: `docs/hardware/initial-hardware-configuration-contract.md`
+- Diagnostics endpoint contract: `docs/firmware/diagnostics-endpoint-contract.md`
 - Architecture decisions: `docs/adrs/`
 
 ## Vocabulary
