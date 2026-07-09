@@ -19,6 +19,7 @@ const config = {
   repoFullName: "ChaseWoodhams/watchpup-kvm",
   labels: {
     readyForAgent: "ready-for-agent",
+    advisorPlanRequired: "advisor-plan-required",
     needsAdvisor: "needs-advisor",
     advisorReviewed: "advisor-reviewed",
     advisorHumanAttention: "advisor-human-attention",
@@ -33,17 +34,25 @@ const config = {
     "npm run build"
   ],
   maxReworkAttempts: 3,
+  advisor: {
+    maxReportWords: 900,
+    maxRequestedChanges: 5
+  },
   sandcastle: {
     prompts: promptPaths,
     issuePrompt: (input: {
       readonly issueNumber: number;
       readonly issueTitle: string;
       readonly issueBody: string;
+      readonly requiresAdvisorPlan?: boolean;
+      readonly implementationPlan?: string;
     }) => `${readPrompt(promptPaths.issue)}
 
 Assigned issue #${input.issueNumber}: ${input.issueTitle}
 
-${input.issueBody}`,
+${input.issueBody}
+
+${input.implementationPlan ?? ""}`,
     reviewPrompt: (input: {
       readonly pullNumber: number;
       readonly pullTitle: string;
@@ -64,7 +73,7 @@ Head branch: ${input.headBranch}`,
 Pull request #${input.pullNumber}: ${input.pullTitle}
 Attempt: ${input.attempt}
 
-Blocking gate feedback:
+Requested feedback:
 
 ${input.gateComment}`
   }
