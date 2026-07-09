@@ -1,0 +1,13 @@
+# Baseline defaults derived from docs/research/esp-idf-skeleton-baseline.md.
+
+# WebSocket support is reserved for later browser/API control work.
+CONFIG_HTTPD_WS_SUPPORT=y
+
+# Keep request headers large enough for browser clients and auth experiments.
+CONFIG_HTTPD_MAX_REQ_HDR_LEN=8192
+
+# Networking headroom inherited from the ESP-IDF skeleton baseline research.
+CONFIG_LWIP_MAX_SOCKETS=24
+CONFIG_LWIP_TCP_SND_BUF_DEFAULT=65535
+CONFIG_LWIP_TCP_WND_DEFAULT=65535
+CONFIG_LWIP_TCPIP_TASK_STACK_SIZE=6144
