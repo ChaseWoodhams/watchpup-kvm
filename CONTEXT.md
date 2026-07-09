@@ -50,6 +50,7 @@ Post-v1 or later work includes H.264, Wi-Fi, virtual media, cloud access, HTTPS-
 - ESP32-P4 realism research: `docs/research/esp32-p4-realism.md`
 - DIY cost/BOM research: `docs/research/watchpup-diy-cost-bom.md`
 - ESP-IDF skeleton baseline: `docs/research/esp-idf-skeleton-baseline.md`
+- Initial hardware configuration contract: `docs/hardware/initial-hardware-configuration-contract.md`
 - Architecture decisions: `docs/adrs/`
 
 ## Vocabulary
