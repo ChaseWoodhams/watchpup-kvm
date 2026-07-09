@@ -377,6 +377,11 @@ These fields align with the boundary defined in [TC358743 Bridge Driver Design N
 - `protocol_errors`
 - `last_protocol_error`
 - `last_owner_change_ms`
+- `forced_release_count`
+- `last_release_reason`
+- `input_queue_depth`
+- `input_queue_high_water`
+- `queue_overflow_count`
 
 ### `auth_security`
 
