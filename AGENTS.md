@@ -76,3 +76,17 @@ Before finishing, run:
 npm run typecheck
 npm run build
 ```
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues for `ChaseWoodhams/watchpup-kvm`; external PRs are not treated as a triage request surface. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+This repo uses the standard triage vocabulary, with `ready-for-agent` as the AFK-ready implementation label. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repo with shared context in `CONTEXT.md`, PRDs/specs in `docs/prds/`, and ADRs in `docs/adrs/`. See `docs/agents/domain.md`.
