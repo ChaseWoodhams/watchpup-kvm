@@ -1,0 +1,10 @@
+{
+  "name": "watchpup-kvm",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "node -e \"console.log('typecheck placeholder passed')\"",
+    "build": "node -e \"console.log('build placeholder passed')\""
+  }
+}

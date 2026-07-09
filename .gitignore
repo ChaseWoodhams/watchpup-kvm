@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+.sandcastle/logs/
+.sandcastle/worktrees/
+.sandcastle/.env
+.DS_Store
+Thumbs.db
