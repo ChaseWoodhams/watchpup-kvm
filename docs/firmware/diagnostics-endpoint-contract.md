@@ -180,6 +180,12 @@ The first build that implements `/diag` should include these concrete fields:
       "last_error": null,
       "details": {}
     },
+    "frame_store": {
+      "status": "unavailable",
+      "implemented": false,
+      "last_error": null,
+      "details": {}
+    },
     "stream_server": {
       "status": "unavailable",
       "implemented": false,
@@ -292,6 +298,8 @@ These fields align with the boundary defined in [TC358743 Bridge Driver Design N
 - `pixel_format`
 - `frames_received`
 - `frames_dropped`
+- `frames_dropped_busy`
+- `last_completed_sequence`
 - `last_frame_ms`
 - `last_frame_error`
 
@@ -302,12 +310,27 @@ These fields align with the boundary defined in [TC358743 Bridge Driver Design N
 - `initialized`
 - `jpeg_engine_ready`
 - `quality`
+- `encode_attempts`
 - `encode_width`
 - `encode_height`
 - `frames_encoded`
 - `encode_failures`
 - `last_encode_ms`
+- `last_encode_time_us`
+- `max_encode_time_us`
 - `last_jpeg_size_bytes`
+
+### `frame_store`
+
+`details` should grow to include:
+
+- `published_generation`
+- `publish_count`
+- `publish_drop_no_slot`
+- `slot_pressure_events`
+- `slot_borrow_count`
+- `slot_peak_in_use`
+- `retired_slots_waiting_release`
 
 ### `stream_server`
 
@@ -319,8 +342,13 @@ These fields align with the boundary defined in [TC358743 Bridge Driver Design N
 - `active_mjpeg_clients`
 - `peak_mjpeg_clients`
 - `frames_served`
+- `send_attempts`
+- `frames_skipped_total`
+- `skipped_generations_total`
 - `client_disconnects_slow_consumer`
+- `send_failures`
 - `last_client_connect_ms`
+- `last_sent_generation`
 
 ### `hid_device`
 
