@@ -19,6 +19,9 @@ const config = {
   repoFullName: "ChaseWoodhams/watchpup-kvm",
   labels: {
     readyForAgent: "ready-for-agent",
+    needsAdvisor: "needs-advisor",
+    advisorReviewed: "advisor-reviewed",
+    advisorHumanAttention: "advisor-human-attention",
     needsReview: "needs-review",
     approved: "ready-for-human-merge",
     changesRequested: "claude-changes-requested",
