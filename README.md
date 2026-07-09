@@ -1,8 +1,10 @@
 # WatchPup KVM
 
-WatchPup KVM is an open-source, microcontroller-class KVM-over-IP project for homelabs, mini PCs, small labs, makers, and agent-assisted machine recovery.
+WatchPup KVM is an open-source, microcontroller-class KVM-over-IP project built around an ESP32-P4 plus TC358743 HDMI-to-MIPI CSI path, wired Ethernet, and an MJPEG-first browser access model.
 
-The goal is not to out-feature every Linux-based KVM appliance on day one. The goal is to build a cheap-enough, transparent, inspectable KVM node that technical users can understand, reproduce, debug, and improve.
+The target user is a technical operator who wants BIOS-level access, crash recovery, OS install help, and machine recovery on homelab or lab machines without paying for a full Linux-based KVM appliance on every box.
+
+The goal is to build a cheap-enough, transparent, inspectable KVM node that technical users can understand, reproduce, debug, and improve.
 
 ## Status
 
@@ -11,6 +13,7 @@ This repository is still at a baseline stage.
 - Product direction, research, ADRs, and initial implementation boundaries are documented.
 - Firmware, web UI, hardware design files, and enclosure files are not fully implemented yet.
 - The repo currently contains early scaffolding and planning artifacts, not a finished device.
+- The current documented path is ESP32-P4 + TC358743, with diagnostics-first sequencing and read-only MJPEG before broader control features if needed to reduce risk.
 
 Start with [CONTEXT.md](CONTEXT.md) for the current shared project context.
 
@@ -61,7 +64,7 @@ This project is run as a public, issue-driven repository.
 
 - Work should start from a GitHub issue, not an open-ended implementation idea.
 - Implementation agents should only act on issues labeled `ready-for-agent`.
-- Agents may open or update pull requests, but humans review the work.
+- Agents may open or update pull requests, but every agent PR is human-reviewed before merge.
 - Humans merge only.
 
 Important review labels are documented in [AGENTS.md](AGENTS.md) and [docs/agents/triage-labels.md](docs/agents/triage-labels.md).
