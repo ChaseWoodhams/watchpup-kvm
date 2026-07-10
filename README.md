@@ -1,5 +1,7 @@
 # WatchPup KVM
 
+![WatchPup KVM banner](docs/assets/watchpup-readme-banner.png)
+
 WatchPup KVM is an open-source, microcontroller-class KVM-over-IP project built around an ESP32-P4 plus TC358743 HDMI-to-MIPI CSI path, wired Ethernet, and an MJPEG-first browser access model.
 
 The target user is a technical operator who wants BIOS-level access, crash recovery, OS install help, and machine recovery on homelab or lab machines without paying for a full Linux-based KVM appliance on every box.
