@@ -45,6 +45,7 @@ Post-v1 or later work includes H.264, Wi-Fi, virtual media, cloud access, HTTPS-
 ## Documentation Map
 
 - Product PRD outline: `docs/prds/watchpup-product-prd-outline.md`
+- Incremental hardware validation path spec: `docs/prds/incremental-esp32-p4-hardware-validation-path.md`
 - p4kvm reference analysis: `docs/research/p4kvm-reference-analysis.md`
 - Market gap research: `docs/research/watchpup-market-gap.md`
 - ESP32-P4 realism research: `docs/research/esp32-p4-realism.md`
