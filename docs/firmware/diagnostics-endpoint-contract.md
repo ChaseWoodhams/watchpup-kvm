@@ -30,6 +30,12 @@ The first diagnostics endpoint contract is:
 
 The endpoint is intended for local firmware health inspection. It should remain machine-readable and safe for browser and agent tooling to poll.
 
+### Bench Bootstrap Security Exception
+
+For the earliest board-health milestone only, `GET /diag` may be served without authentication on an isolated bench network or direct Ethernet link. This exception exists solely to make device and network bring-up observable before an authentication subsystem exists.
+
+It is not a v1 network posture: the bootstrap build must expose no control, HID, power, or streaming routes, and it must be explicitly identified as a bench build in its diagnostics output. Authentication is a required gate before any streaming or control-capable endpoint is exposed on a LAN.
+
 ## Stability Rule
 
 Version the contract through `schema_version`.
