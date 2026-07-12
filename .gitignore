@@ -3,6 +3,11 @@ dist/
 build/
 coverage/
 firmware/generated/web/
+firmware/managed_components/
+firmware/sdkconfig
+firmware/dependencies.lock
+firmware/build-idf5/
+firmware/sdkconfig.idf5
 .env
 .env.*
 !.env.example

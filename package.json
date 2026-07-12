@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:phase1": "node --test tools/validate-phase1.test.mjs",
     "typecheck": "node -e \"console.log('typecheck placeholder passed')\"",
     "build": "node -e \"console.log('build placeholder passed')\""
   }
