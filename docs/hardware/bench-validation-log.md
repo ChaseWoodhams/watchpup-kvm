@@ -169,3 +169,19 @@ continues to report `sys_status=0x05`: DDC 5V and PHY PLL are present, but the
 TMDS signal bit is clear. This separates host display configuration from a
 working HDMI data path and leaves cable direction, adapter input/power, or
 source-to-adapter physical connectivity as the next checks.
+
+## Test 006: Apollo Virtual Display Separation
+
+**Date:** 2026-07-13
+**Result:** **Virtual and physical display paths separated**
+
+The host is running Apollo/Sunshine. Its remote-stream display is the
+`SudoMaker Virtual Display Adapter`, with a `Generic Monitor (TCL)` at
+`2400x1600`; that monitor is parented by `ROOT\\DISPLAY\\0000` and is not the
+physical HDMI path.
+
+The physical path is separately enumerated as the `NVIDIA GeForce RTX 3060`
+parent with `Generic Monitor (Default_Monitor)` at `1024x768`. The ESP32
+bridge diagnostics are independent of the Apollo virtual monitor and continue
+to report no TMDS signal. Subsequent host checks must use the NVIDIA physical
+path only.
