@@ -13,11 +13,38 @@
 static const char *TAG = "watchpup_bridge";
 
 #define TC358743_CHIPID 0x0000
+#define TC358743_SYSCTL 0x0002
+#define TC358743_FIFOCTL 0x0006
 #define TC358743_SYS_STATUS 0x8520
 #define TC358743_CSI_STATUS 0x0410
+#define TC358743_PHY_CTL0 0x8531
+#define TC358743_PHY_CTL1 0x8532
+#define TC358743_PHY_CTL2 0x8533
+#define TC358743_PHY_EN 0x8534
+#define TC358743_PHY_BIAS 0x8536
+#define TC358743_PHY_CSQ 0x853F
 #define TC358743_HPD_CTL 0x8544
+#define TC358743_DDC_CTL 0x8543
+#define TC358743_AVM_CTL 0x8546
+#define TC358743_HDMI_DET 0x8552
+#define TC358743_HV_RST 0x85AF
 #define TC358743_EDID_MODE 0x85C7
 #define TC358743_EDID_RAM 0x8C00
+#define TC358743_SYS_FREQ0 0x8540
+#define TC358743_SYS_FREQ1 0x8541
+#define TC358743_FH_MIN0 0x85AA
+#define TC358743_FH_MIN1 0x85AB
+#define TC358743_FH_MAX0 0x85AC
+#define TC358743_FH_MAX1 0x85AD
+#define TC358743_LOCKDET_REF0 0x8630
+#define TC358743_LOCKDET_REF1 0x8631
+#define TC358743_LOCKDET_REF2 0x8632
+#define TC358743_NCO_F0_MOD 0x8670
+#define TC358743_CECHCLK 0x0028
+#define TC358743_CECLCLK 0x002A
+#define TC358743_VI_MODE 0x8570
+#define TC358743_VOUT_SET2 0x8573
+#define TC358743_VOUT_SET3 0x8574
 #define TC358743_DE_WIDTH_H_LO 0x8582
 #define TC358743_DE_WIDTH_H_HI 0x8583
 #define TC358743_DE_WIDTH_V_LO 0x8588
@@ -88,6 +115,12 @@ static esp_err_t bridge_write8(uint16_t reg, uint8_t value)
     return bridge_write(reg, &value, sizeof(value));
 }
 
+static esp_err_t bridge_write16(uint16_t reg, uint16_t value)
+{
+    const uint8_t data[2] = {(uint8_t)value, (uint8_t)(value >> 8)};
+    return bridge_write(reg, data, sizeof(data));
+}
+
 static esp_err_t bridge_read8(uint16_t reg, uint8_t *value)
 {
     return bridge_read(reg, value, sizeof(*value));
@@ -98,6 +131,66 @@ static esp_err_t bridge_read16(uint16_t reg, uint16_t *value)
     uint8_t data[2];
     const esp_err_t err = bridge_read(reg, data, sizeof(data));
     if (err == ESP_OK) *value = (uint16_t)data[0] | ((uint16_t)data[1] << 8);
+    return err;
+}
+
+static esp_err_t bridge_update8(uint16_t reg, uint8_t clear_mask, uint8_t set_bits)
+{
+    uint8_t value = 0;
+    esp_err_t err = bridge_read8(reg, &value);
+    if (err == ESP_OK) err = bridge_write8(reg, (uint8_t)((value & (uint8_t)~clear_mask) | set_bits));
+    return err;
+}
+
+static esp_err_t bridge_configure_source_path(const watchpup_board_config_t *board)
+{
+    esp_err_t err;
+    uint16_t sysctl = 0;
+    uint32_t sys_freq = (uint32_t)board->bridge_refclk_hz / 10000;
+    uint32_t lockdet_ref = (uint32_t)board->bridge_refclk_hz / 100;
+    uint16_t fh_min = (uint16_t)((uint32_t)board->bridge_refclk_hz / 100000);
+    uint16_t fh_max = (uint16_t)(((uint32_t)fh_min * 66) / 10);
+    uint16_t cec_freq = (uint16_t)((656U * sys_freq) / 4200U);
+
+    err = bridge_read16(TC358743_SYSCTL, &sysctl);
+    if (err != ESP_OK) return err;
+    err = bridge_write16(TC358743_SYSCTL, (uint16_t)(sysctl | 0x0f00));
+    if (err != ESP_OK) return err;
+    err = bridge_write16(TC358743_SYSCTL, (uint16_t)(sysctl & (uint16_t)~0x0f00));
+    if (err != ESP_OK) return err;
+    err = bridge_write16(TC358743_FIFOCTL, 374);
+    if (err != ESP_OK) return err;
+
+    err = bridge_write8(TC358743_SYS_FREQ0, (uint8_t)sys_freq);
+    if (err == ESP_OK) err = bridge_write8(TC358743_SYS_FREQ1, (uint8_t)(sys_freq >> 8));
+    if (err == ESP_OK) err = bridge_write8(TC358743_FH_MIN0, (uint8_t)fh_min);
+    if (err == ESP_OK) err = bridge_write8(TC358743_FH_MIN1, (uint8_t)(fh_min >> 8));
+    if (err == ESP_OK) err = bridge_write8(TC358743_FH_MAX0, (uint8_t)fh_max);
+    if (err == ESP_OK) err = bridge_write8(TC358743_FH_MAX1, (uint8_t)(fh_max >> 8));
+    if (err == ESP_OK) err = bridge_write8(TC358743_LOCKDET_REF0, (uint8_t)lockdet_ref);
+    if (err == ESP_OK) err = bridge_write8(TC358743_LOCKDET_REF1, (uint8_t)(lockdet_ref >> 8));
+    if (err == ESP_OK) err = bridge_write8(TC358743_LOCKDET_REF2, (uint8_t)(lockdet_ref >> 16));
+    if (err == ESP_OK) err = bridge_write8(TC358743_NCO_F0_MOD, board->bridge_refclk_hz == 27000000 ? 0x01 : 0x00);
+    if (err == ESP_OK) err = bridge_write16(TC358743_CECHCLK, cec_freq);
+    if (err == ESP_OK) err = bridge_write16(TC358743_CECLCLK, cec_freq);
+    if (err == ESP_OK) err = bridge_update8(TC358743_DDC_CTL, 0x03, 0x02);
+    if (err != ESP_OK) return err;
+
+    err = bridge_write8(TC358743_PHY_EN, 0x00);
+    if (err == ESP_OK) err = bridge_update8(TC358743_PHY_CTL0, 0x02, board->bridge_refclk_hz == 27000000 ? 0x00 : 0x02);
+    if (err == ESP_OK) err = bridge_write8(TC358743_PHY_CTL1, 0x80);
+    if (err == ESP_OK) err = bridge_write8(TC358743_PHY_CTL2, 0x00);
+    if (err == ESP_OK) err = bridge_write8(TC358743_PHY_BIAS, 0x40);
+    if (err == ESP_OK) err = bridge_write8(TC358743_PHY_CSQ, 0x0a);
+    if (err == ESP_OK) err = bridge_write8(TC358743_AVM_CTL, 45);
+    if (err == ESP_OK) err = bridge_update8(TC358743_HDMI_DET, 0x30, 0x00);
+    if (err == ESP_OK) err = bridge_update8(TC358743_HV_RST, 0x30, 0x00);
+    if (err == ESP_OK) err = bridge_write8(TC358743_PHY_EN, 0x01);
+    if (err != ESP_OK) return err;
+
+    err = bridge_update8(TC358743_VI_MODE, 0x08, 0x00);
+    if (err == ESP_OK) err = bridge_update8(TC358743_VOUT_SET2, 0x03, 0x01);
+    if (err == ESP_OK) err = bridge_write8(TC358743_VOUT_SET3, 0x08);
     return err;
 }
 
@@ -243,6 +336,10 @@ esp_err_t watchpup_tc358743_start(watchpup_tc358743_health_t *health)
     if (err != ESP_OK) { bridge_fail(health, "hpd_low", "hpd_write_failed"); return err; }
     health->hpd_asserted = false;
     vTaskDelay(pdMS_TO_TICKS(50));
+
+    health->last_step = "configure_source_path";
+    err = bridge_configure_source_path(board);
+    if (err != ESP_OK) { bridge_fail(health, "configure_source_path", "source_path_config_failed"); return err; }
 
     err = bridge_load_edid(health);
     if (err != ESP_OK) { bridge_fail(health, "load_edid", "edid_load_failed"); return err; }

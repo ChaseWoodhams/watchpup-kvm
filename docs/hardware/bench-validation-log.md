@@ -132,3 +132,21 @@ is not yet passed. `csi_output_enabled=false` is expected at this phase because
 raw CSI capture has not been started; it is not evidence of captured pixels.
 
 Serial capture: `C:\sandbox\watchpup-kvm-phase2-serial-reset.txt`.
+
+## Test 004: Phase 2 Source-Path Bring-Up
+
+**Date:** 2026-07-13
+**Result:** **Partial pass; no active HDMI/TMDS source detected**
+
+The bridge probe was rerun after adding the TC358743 reference-clock, PHY,
+DDC, detector, and output-path initialization. The new image built cleanly
+with ESP-IDF v5.4.2 and flashed to `COM3` with hash verification. Serial and
+`/diag` evidence confirmed that the source path now completes, EDID loads,
+HPD is asserted, and the PHY PLL remains locked.
+
+The bridge still reports `sys_status=0x05`,
+`hdmi_signal_detected=false`, `hdmi_sync_locked=false`, and zero negotiated
+dimensions. `0x05` indicates the adapter-side 5V/PHY-PLL state without the
+TMDS signal bit, so the remaining gate requires an actively outputting HDMI
+source. The CSI transmitter remains disabled as expected before Phase 3
+capture.
