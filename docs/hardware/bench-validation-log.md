@@ -206,3 +206,18 @@ verification. The live `/diag` response and serial output reported:
 This rules out an unenabled or held-in-reset HDMI PHY in the current firmware.
 The remaining failure is the source-to-adapter TMDS path or the host's
 physical HDMI output/cable/input connection.
+
+## Test 008: CSI Ribbon Re-Seated on Camera Connector
+
+**Date:** 2026-07-13
+**Result:** **Correct connector; HDMI source lock still absent**
+
+The HDMI-to-CSI ribbon was moved from the ESP32-P4-ETH `Display` connector to
+the `Camera` connector, which is the board's MIPI-CSI input. After a clean
+reset, the bridge still passed I2C probe, EDID, HPD, and PHY PLL checks. The
+raw status remained `sys_status=0x05`, `hdmi_signal_detected=false`, and
+`hdmi_sync_locked=false`, with zero negotiated timing.
+
+This corrects the CSI-side wiring for a later capture test, but it does not
+change the HDMI receiver's source-side TMDS lock. CSI output remains disabled
+because Phase 3 capture has not been started.
