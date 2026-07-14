@@ -185,3 +185,24 @@ parent with `Generic Monitor (Default_Monitor)` at `1024x768`. The ESP32
 bridge diagnostics are independent of the Apollo virtual monitor and continue
 to report no TMDS signal. Subsequent host checks must use the NVIDIA physical
 path only.
+
+## Test 007: TC358743 Raw HDMI Register Probe
+
+**Date:** 2026-07-13
+**Result:** **PHY and HPD active; no TMDS data detected**
+
+The extended diagnostics image was built and flashed to `COM3` with hash
+verification. The live `/diag` response and serial output reported:
+
+- `phy_en=0x01` and `phy_rst=0xb3`: HDMI PHY enabled and reset control
+  deasserted.
+- `hpd_ctl=0x01`: HPD asserted toward the host.
+- `ddc_ctl=0x32`: the configured 100 ms DDC 5V delay is present.
+- `hdmi_det=0xc1` and `hv_rst=0x06`: detector configuration is readable and
+  horizontal/vertical reset controls are not asserted.
+- `sys_status=0x05`: PHY PLL and DDC 5V are present, but TMDS and sync remain
+  clear.
+
+This rules out an unenabled or held-in-reset HDMI PHY in the current firmware.
+The remaining failure is the source-to-adapter TMDS path or the host's
+physical HDMI output/cable/input connection.

@@ -35,6 +35,9 @@ export function validateBridgeDiagnostics(diag, { requireSignal = true } = {}) {
   assert.equal(typeof details.csi_output_enabled, 'boolean');
   assert.ok(Number.isInteger(details.sys_status));
   assert.ok(Number.isInteger(details.csi_status));
+  for (const register of ['phy_en', 'phy_rst', 'hdmi_det', 'hv_rst', 'ddc_ctl', 'hpd_ctl']) {
+    assert.ok(Number.isInteger(details[register]), `missing raw TC358743 register: ${register}`);
+  }
   if (requireSignal) {
     assert.equal(details.hdmi_signal_detected, true);
     assert.equal(details.hdmi_sync_locked, true);

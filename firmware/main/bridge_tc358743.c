@@ -21,6 +21,7 @@ static const char *TAG = "watchpup_bridge";
 #define TC358743_PHY_CTL1 0x8532
 #define TC358743_PHY_CTL2 0x8533
 #define TC358743_PHY_EN 0x8534
+#define TC358743_PHY_RST 0x8535
 #define TC358743_PHY_BIAS 0x8536
 #define TC358743_PHY_CSQ 0x853F
 #define TC358743_HPD_CTL 0x8544
@@ -217,8 +218,15 @@ esp_err_t watchpup_tc358743_poll(watchpup_tc358743_health_t *health)
 
     uint8_t sys_status = 0;
     uint16_t csi_status = 0;
+    uint8_t phy_en = 0, phy_rst = 0, hdmi_det = 0, hv_rst = 0, ddc_ctl = 0, hpd_ctl = 0;
     esp_err_t err = bridge_read8(TC358743_SYS_STATUS, &sys_status);
     if (err == ESP_OK) err = bridge_read16(TC358743_CSI_STATUS, &csi_status);
+    if (err == ESP_OK) err = bridge_read8(TC358743_PHY_EN, &phy_en);
+    if (err == ESP_OK) err = bridge_read8(TC358743_PHY_RST, &phy_rst);
+    if (err == ESP_OK) err = bridge_read8(TC358743_HDMI_DET, &hdmi_det);
+    if (err == ESP_OK) err = bridge_read8(TC358743_HV_RST, &hv_rst);
+    if (err == ESP_OK) err = bridge_read8(TC358743_DDC_CTL, &ddc_ctl);
+    if (err == ESP_OK) err = bridge_read8(TC358743_HPD_CTL, &hpd_ctl);
     if (err != ESP_OK) {
         health->last_step = "poll_status";
         health->last_error = "i2c_read_failed";
@@ -228,6 +236,12 @@ esp_err_t watchpup_tc358743_poll(watchpup_tc358743_health_t *health)
 
     health->sys_status = sys_status;
     health->csi_status = csi_status;
+    health->phy_en = phy_en;
+    health->phy_rst = phy_rst;
+    health->hdmi_det = hdmi_det;
+    health->hv_rst = hv_rst;
+    health->ddc_ctl = ddc_ctl;
+    health->hpd_ctl = hpd_ctl;
     health->hdmi_signal_detected = (sys_status & SYS_STATUS_TMDS) != 0;
     health->hdmi_sync_locked = (sys_status & SYS_STATUS_SYNC) != 0;
     health->pll_locked = (sys_status & SYS_STATUS_PHY_PLL) != 0;
@@ -272,6 +286,8 @@ esp_err_t watchpup_tc358743_poll(watchpup_tc358743_health_t *health)
              health->hdmi_signal_detected ? "true" : "false", (unsigned)health->negotiated_width,
              (unsigned)health->negotiated_height, (unsigned)health->negotiated_frame_rate,
              health->pll_locked ? "true" : "false", health->csi_output_enabled ? "true" : "false");
+    ESP_LOGI(TAG, "[diag] bridge.registers sys_status=0x%02x csi_status=0x%04x phy_en=0x%02x phy_rst=0x%02x hdmi_det=0x%02x hv_rst=0x%02x ddc_ctl=0x%02x hpd_ctl=0x%02x",
+             sys_status, csi_status, phy_en, phy_rst, hdmi_det, hv_rst, ddc_ctl, hpd_ctl);
     return ESP_OK;
 }
 

@@ -28,6 +28,12 @@ typedef struct {
     bool csi_output_enabled;
     uint32_t sys_status;
     uint32_t csi_status;
+    uint8_t phy_en;
+    uint8_t phy_rst;
+    uint8_t hdmi_det;
+    uint8_t hv_rst;
+    uint8_t ddc_ctl;
+    uint8_t hpd_ctl;
     int64_t last_init_success_ms;
     int64_t last_signal_lock_ms;
     uint32_t recovery_count;
