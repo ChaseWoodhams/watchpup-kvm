@@ -221,3 +221,23 @@ raw status remained `sys_status=0x05`, `hdmi_signal_detected=false`, and
 This corrects the CSI-side wiring for a later capture test, but it does not
 change the HDMI receiver's source-side TMDS lock. CSI output remains disabled
 because Phase 3 capture has not been started.
+
+## Test 009: TC358743 Analog HDMI Path and Host Attach Retest
+
+**Date:** 2026-07-13
+**Result:** **Host attach recovered; HDMI video data still absent**
+
+The firmware now initializes and reports the TC358743 analog HDMI control
+register used by the upstream driver (`ana_ctl=0x31`). After flashing and
+resetting, NVIDIA reported `Display Attached: Yes` for the physical output.
+The bridge still reported `edid_loaded=true`, `edid_length_bytes=256`,
+`hpd_ctl=0x01`, `ana_ctl=0x31`, and `pll_locked=true`, but remained at
+`sys_status=0x05`, `hdmi_signal_detected=false`, `hdmi_sync_locked=false`, and
+zero negotiated timing. Windows still has no EDID registry blob for the
+physical `Default_Monitor` path.
+
+This confirms that the ESP32 can initialize the TC358743, assert HPD, and
+present an attached HDMI output, while the receiver still does not see TMDS
+video. The next test must force a known supported source mode or isolate the
+host HDMI cable/output from the adapter input; CSI capture cannot proceed until
+the bridge reports TMDS and sync.

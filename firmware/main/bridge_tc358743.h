@@ -18,6 +18,7 @@ typedef struct {
     bool reset_supported;
     bool hpd_asserted;
     bool edid_loaded;
+    uint16_t edid_length_bytes;
     const char *edid_revision;
     bool hdmi_signal_detected;
     bool hdmi_sync_locked;
@@ -34,6 +35,7 @@ typedef struct {
     uint8_t hv_rst;
     uint8_t ddc_ctl;
     uint8_t hpd_ctl;
+    uint8_t ana_ctl;
     int64_t last_init_success_ms;
     int64_t last_signal_lock_ms;
     uint32_t recovery_count;

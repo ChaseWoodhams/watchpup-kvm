@@ -68,7 +68,7 @@ static esp_err_t diag_get(httpd_req_t *request)
         "\"board_config\":{\"status\":\"ok\",\"implemented\":true,\"last_error\":null,\"details\":{\"board_id\":\"%s\",\"bridge_adapter_id\":\"%s\",\"bridge_i2c_port\":%d,\"bridge_i2c_sda_gpio\":%d,\"bridge_i2c_scl_gpio\":%d,\"bridge_i2c_address\":%d,\"configured_csi_lane_count\":%d,\"configured_csi_lane_rate_mbps\":%d,\"bridge_refclk_hz\":%d,\"bridge_reset_gpio\":%d}},"
         "\"psram\":{\"status\":\"%s\",\"implemented\":true,\"last_error\":%s,\"details\":{\"psram_present\":%s,\"psram_size_bytes\":%u,\"psram_test_passed\":%s}},"
         "\"ethernet\":{\"status\":\"%s\",\"implemented\":true,\"last_error\":%s,\"details\":{\"initialized\":%s,\"link_up\":%s,\"dhcp_enabled\":true,\"ipv4_address\":%s%s%s}},"
-        "\"bridge_tc358743\":{\"status\":\"%s\",\"implemented\":true,\"last_error\":%s,\"details\":{\"probe_ok\":%s,\"chip_id\":\"0x%04x\",\"driver_state\":\"%s\",\"reset_supported\":%s,\"hpd_asserted\":%s,\"edid_loaded\":%s,\"edid_revision\":\"%s\",\"hdmi_signal_detected\":%s,\"hdmi_sync_locked\":%s,\"negotiated_width\":%u,\"negotiated_height\":%u,\"negotiated_frame_rate\":%u,\"pll_locked\":%s,\"csi_output_enabled\":%s,\"i2c_port\":%d,\"i2c_sda_gpio\":%d,\"i2c_scl_gpio\":%d,\"i2c_address\":%d,\"configured_csi_lane_count\":%d,\"configured_csi_lane_rate_mbps\":%d,\"sys_status\":%u,\"csi_status\":%u,\"phy_en\":%u,\"phy_rst\":%u,\"hdmi_det\":%u,\"hv_rst\":%u,\"ddc_ctl\":%u,\"hpd_ctl\":%u,\"last_init_success_ms\":%lld,\"last_signal_lock_ms\":%lld,\"recovery_count\":%u,\"last_step\":\"%s\"}},"
+        "\"bridge_tc358743\":{\"status\":\"%s\",\"implemented\":true,\"last_error\":%s,\"details\":{\"probe_ok\":%s,\"chip_id\":\"0x%04x\",\"driver_state\":\"%s\",\"reset_supported\":%s,\"hpd_asserted\":%s,\"edid_loaded\":%s,\"edid_length_bytes\":%u,\"edid_revision\":\"%s\",\"hdmi_signal_detected\":%s,\"hdmi_sync_locked\":%s,\"negotiated_width\":%u,\"negotiated_height\":%u,\"negotiated_frame_rate\":%u,\"pll_locked\":%s,\"csi_output_enabled\":%s,\"i2c_port\":%d,\"i2c_sda_gpio\":%d,\"i2c_scl_gpio\":%d,\"i2c_address\":%d,\"configured_csi_lane_count\":%d,\"configured_csi_lane_rate_mbps\":%d,\"sys_status\":%u,\"csi_status\":%u,\"phy_en\":%u,\"phy_rst\":%u,\"hdmi_det\":%u,\"hv_rst\":%u,\"ddc_ctl\":%u,\"hpd_ctl\":%u,\"ana_ctl\":%u,\"last_init_success_ms\":%lld,\"last_signal_lock_ms\":%lld,\"recovery_count\":%u,\"last_step\":\"%s\"}},"
         "\"capture\":{\"status\":\"unavailable\",\"implemented\":false,\"last_error\":null,\"details\":{}},"
         "\"encoder_mjpeg\":{\"status\":\"unavailable\",\"implemented\":false,\"last_error\":null,\"details\":{}},"
         "\"frame_store\":{\"status\":\"unavailable\",\"implemented\":false,\"last_error\":null,\"details\":{}},"
@@ -96,6 +96,7 @@ static esp_err_t diag_get(httpd_req_t *request)
         s_bridge != NULL && s_bridge->reset_supported ? "true" : "false",
         s_bridge != NULL && s_bridge->hpd_asserted ? "true" : "false",
         s_bridge != NULL && s_bridge->edid_loaded ? "true" : "false",
+        s_bridge == NULL ? 0U : (unsigned)s_bridge->edid_length_bytes,
         s_bridge == NULL ? "unavailable" : s_bridge->edid_revision,
         s_bridge != NULL && s_bridge->hdmi_signal_detected ? "true" : "false",
         s_bridge != NULL && s_bridge->hdmi_sync_locked ? "true" : "false",
@@ -115,6 +116,7 @@ static esp_err_t diag_get(httpd_req_t *request)
         s_bridge == NULL ? 0U : (unsigned)s_bridge->hv_rst,
         s_bridge == NULL ? 0U : (unsigned)s_bridge->ddc_ctl,
         s_bridge == NULL ? 0U : (unsigned)s_bridge->hpd_ctl,
+        s_bridge == NULL ? 0U : (unsigned)s_bridge->ana_ctl,
         s_bridge == NULL ? 0LL : (long long)s_bridge->last_init_success_ms,
         s_bridge == NULL ? 0LL : (long long)s_bridge->last_signal_lock_ms,
         s_bridge == NULL ? 0U : (unsigned)s_bridge->recovery_count,

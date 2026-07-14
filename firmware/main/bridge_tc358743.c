@@ -26,10 +26,13 @@ static const char *TAG = "watchpup_bridge";
 #define TC358743_PHY_CSQ 0x853F
 #define TC358743_HPD_CTL 0x8544
 #define TC358743_DDC_CTL 0x8543
+#define TC358743_ANA_CTL 0x8545
 #define TC358743_AVM_CTL 0x8546
 #define TC358743_HDMI_DET 0x8552
 #define TC358743_HV_RST 0x85AF
 #define TC358743_EDID_MODE 0x85C7
+#define TC358743_EDID_LEN1 0x85CA
+#define TC358743_EDID_LEN2 0x85CB
 #define TC358743_EDID_RAM 0x8C00
 #define TC358743_SYS_FREQ0 0x8540
 #define TC358743_SYS_FREQ1 0x8541
@@ -185,6 +188,7 @@ static esp_err_t bridge_configure_source_path(const watchpup_board_config_t *boa
     if (err == ESP_OK) err = bridge_write8(TC358743_PHY_CSQ, 0x0a);
     if (err == ESP_OK) err = bridge_write8(TC358743_AVM_CTL, 45);
     if (err == ESP_OK) err = bridge_update8(TC358743_HDMI_DET, 0x30, 0x00);
+    if (err == ESP_OK) err = bridge_write8(TC358743_ANA_CTL, 0x31);
     if (err == ESP_OK) err = bridge_update8(TC358743_HV_RST, 0x30, 0x00);
     if (err == ESP_OK) err = bridge_write8(TC358743_PHY_EN, 0x01);
     if (err != ESP_OK) return err;
@@ -198,17 +202,30 @@ static esp_err_t bridge_configure_source_path(const watchpup_board_config_t *boa
 static esp_err_t bridge_load_edid(watchpup_tc358743_health_t *health)
 {
     health->last_step = "load_edid";
+    const uint16_t edid_length = (uint16_t)sizeof(s_edid_1080p30);
+    esp_err_t err = bridge_write8(TC358743_EDID_LEN1, (uint8_t)edid_length);
+    if (err == ESP_OK) err = bridge_write8(TC358743_EDID_LEN2, (uint8_t)(edid_length >> 8));
+    if (err != ESP_OK) return err;
+
     for (size_t offset = 0; offset < sizeof(s_edid_1080p30); offset += 128) {
-        const esp_err_t err = bridge_write((uint16_t)(TC358743_EDID_RAM + offset), &s_edid_1080p30[offset], 128);
+        err = bridge_write((uint16_t)(TC358743_EDID_RAM + offset), &s_edid_1080p30[offset], 128);
         if (err != ESP_OK) return err;
     }
-    const esp_err_t mode_err = bridge_write8(TC358743_EDID_MODE, EDID_MODE_E_DDC);
-    if (mode_err != ESP_OK) return mode_err;
+    err = bridge_write8(TC358743_EDID_MODE, EDID_MODE_E_DDC);
+    if (err != ESP_OK) return err;
+    uint8_t length_lo = 0;
+    uint8_t length_hi = 0;
+    if (bridge_read8(TC358743_EDID_LEN1, &length_lo) != ESP_OK ||
+        bridge_read8(TC358743_EDID_LEN2, &length_hi) != ESP_OK ||
+        (((uint16_t)length_hi << 8) | length_lo) != edid_length) {
+        return ESP_FAIL;
+    }
     uint8_t mode = 0;
     if (bridge_read8(TC358743_EDID_MODE, &mode) != ESP_OK || (mode & 0x03) != EDID_MODE_E_DDC) {
         return ESP_FAIL;
     }
     health->edid_loaded = true;
+    health->edid_length_bytes = edid_length;
     return ESP_OK;
 }
 
@@ -218,7 +235,7 @@ esp_err_t watchpup_tc358743_poll(watchpup_tc358743_health_t *health)
 
     uint8_t sys_status = 0;
     uint16_t csi_status = 0;
-    uint8_t phy_en = 0, phy_rst = 0, hdmi_det = 0, hv_rst = 0, ddc_ctl = 0, hpd_ctl = 0;
+    uint8_t phy_en = 0, phy_rst = 0, hdmi_det = 0, hv_rst = 0, ddc_ctl = 0, hpd_ctl = 0, ana_ctl = 0;
     esp_err_t err = bridge_read8(TC358743_SYS_STATUS, &sys_status);
     if (err == ESP_OK) err = bridge_read16(TC358743_CSI_STATUS, &csi_status);
     if (err == ESP_OK) err = bridge_read8(TC358743_PHY_EN, &phy_en);
@@ -227,6 +244,7 @@ esp_err_t watchpup_tc358743_poll(watchpup_tc358743_health_t *health)
     if (err == ESP_OK) err = bridge_read8(TC358743_HV_RST, &hv_rst);
     if (err == ESP_OK) err = bridge_read8(TC358743_DDC_CTL, &ddc_ctl);
     if (err == ESP_OK) err = bridge_read8(TC358743_HPD_CTL, &hpd_ctl);
+    if (err == ESP_OK) err = bridge_read8(TC358743_ANA_CTL, &ana_ctl);
     if (err != ESP_OK) {
         health->last_step = "poll_status";
         health->last_error = "i2c_read_failed";
@@ -242,6 +260,7 @@ esp_err_t watchpup_tc358743_poll(watchpup_tc358743_health_t *health)
     health->hv_rst = hv_rst;
     health->ddc_ctl = ddc_ctl;
     health->hpd_ctl = hpd_ctl;
+    health->ana_ctl = ana_ctl;
     health->hdmi_signal_detected = (sys_status & SYS_STATUS_TMDS) != 0;
     health->hdmi_sync_locked = (sys_status & SYS_STATUS_SYNC) != 0;
     health->pll_locked = (sys_status & SYS_STATUS_PHY_PLL) != 0;
@@ -286,8 +305,8 @@ esp_err_t watchpup_tc358743_poll(watchpup_tc358743_health_t *health)
              health->hdmi_signal_detected ? "true" : "false", (unsigned)health->negotiated_width,
              (unsigned)health->negotiated_height, (unsigned)health->negotiated_frame_rate,
              health->pll_locked ? "true" : "false", health->csi_output_enabled ? "true" : "false");
-    ESP_LOGI(TAG, "[diag] bridge.registers sys_status=0x%02x csi_status=0x%04x phy_en=0x%02x phy_rst=0x%02x hdmi_det=0x%02x hv_rst=0x%02x ddc_ctl=0x%02x hpd_ctl=0x%02x",
-             sys_status, csi_status, phy_en, phy_rst, hdmi_det, hv_rst, ddc_ctl, hpd_ctl);
+    ESP_LOGI(TAG, "[diag] bridge.registers sys_status=0x%02x csi_status=0x%04x phy_en=0x%02x phy_rst=0x%02x hdmi_det=0x%02x hv_rst=0x%02x ddc_ctl=0x%02x hpd_ctl=0x%02x ana_ctl=0x%02x",
+             sys_status, csi_status, phy_en, phy_rst, hdmi_det, hv_rst, ddc_ctl, hpd_ctl, ana_ctl);
     return ESP_OK;
 }
 
