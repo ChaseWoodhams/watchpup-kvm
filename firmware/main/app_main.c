@@ -1,4 +1,5 @@
 #include "board_health.h"
+#include "bridge_tc358743.h"
 #include "diagnostics.h"
 #include "esp_err.h"
 #include "esp_event.h"
@@ -8,6 +9,7 @@
 
 static const char *TAG = "watchpup_boot";
 static watchpup_board_health_t s_health;
+static watchpup_tc358743_health_t s_bridge;
 
 static esp_err_t watchpup_init_nvs(void)
 {
@@ -37,5 +39,13 @@ void app_main(void)
         ESP_LOGE(TAG, "[diag] subsystem.init subsystem=ethernet status=error error=initialization_failed code=%s",
                  esp_err_to_name(ethernet_result));
     }
-    ESP_ERROR_CHECK(watchpup_diag_start(&s_health));
+    const esp_err_t bridge_result = watchpup_tc358743_start(&s_bridge);
+    if (bridge_result != ESP_OK) {
+        ESP_LOGE(TAG, "[diag] subsystem.init subsystem=bridge_tc358743 status=error error=%s",
+                 esp_err_to_name(bridge_result));
+    } else {
+        ESP_LOGI(TAG, "[diag] subsystem.init subsystem=bridge_tc358743 status=%s implemented=true",
+                 s_bridge.last_error == NULL ? "ok" : "degraded");
+    }
+    ESP_ERROR_CHECK(watchpup_diag_start(&s_health, &s_bridge));
 }

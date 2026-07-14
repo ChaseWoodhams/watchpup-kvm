@@ -2,6 +2,7 @@
 
 const watchpup_board_config_t WATCHPUP_BOARD_CONFIG = {
     .board_id = "waveshare_esp32_p4_eth",
+    .bridge_adapter_id = "waveshare_hdmi_to_csi_tc358743xbg",
     .phy_address = 1,
     .phy_power_gpio = 51,
     .mdc_gpio = 31,
@@ -13,4 +14,12 @@ const watchpup_board_config_t WATCHPUP_BOARD_CONFIG = {
     .rmii_crs_dv_gpio = 28,
     .rmii_rxd0_gpio = 29,
     .rmii_rxd1_gpio = 30,
+    .bridge_i2c_port = 0,
+    .bridge_i2c_sda_gpio = 7,
+    .bridge_i2c_scl_gpio = 8,
+    .bridge_i2c_address = 0x0f,
+    .configured_csi_lane_count = 2,
+    .configured_csi_lane_rate_mbps = 972,
+    .bridge_refclk_hz = 27000000,
+    .bridge_reset_gpio = -1,
 };

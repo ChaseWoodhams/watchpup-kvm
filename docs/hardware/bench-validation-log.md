@@ -101,6 +101,34 @@ and rerun result before advancing.
 
 ## Next Executable Gate
 
-Finish Phase 0 physical CSI qualification when the 22-to-15-pin CSI camera
-cable arrives. Record connector contact orientation at both ends before
-connecting the TC358743 adapter, then begin Phase 2 bridge diagnostics.
+Complete the remaining Phase 0 physical CSI qualification record if it has not
+already been captured, then rerun Phase 2 with the canonical HDMI source
+actively driving the adapter. The pass condition is repeatable TMDS/sync lock
+with non-zero negotiated dimensions in both BIOS/UEFI and the desktop.
+
+## Test 003: Phase 2 TC358743 Bridge Diagnostics
+
+**Date:** 2026-07-13
+**Result:** **Partial pass; source-signal gate pending**
+
+The Phase 2 compatibility image was built with ESP-IDF v5.4.2 and flashed to
+the ESP32-P4 v1.3 board on `COM3`. Flashing completed with hash verification
+for the bootloader, application, and partition table.
+
+The serial evidence proves:
+
+- I2C0 on SDA GPIO7/SCL GPIO8 received an ACK at address `0x0f`.
+- The TC358743 chip ID read as `0x0000`.
+- The two-block Waveshare 1080p30 EDID loaded successfully.
+- HPD was asserted after EDID setup.
+- The HDMI PHY PLL reported locked.
+- The bridge diagnostics endpoint reported the same state at
+  `http://192.168.10.27/diag`.
+
+The connected bridge reported `hdmi_signal_detected=false`,
+`negotiated_width=0`, `negotiated_height=0`, and
+`negotiated_frame_rate=0`. Therefore the source-negotiation acceptance gate
+is not yet passed. `csi_output_enabled=false` is expected at this phase because
+raw CSI capture has not been started; it is not evidence of captured pixels.
+
+Serial capture: `C:\sandbox\watchpup-kvm-phase2-serial-reset.txt`.

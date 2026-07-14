@@ -80,6 +80,17 @@ The initial hardware-validation stack is now selected for bench work:
 
 This locks the first bench-validation target, not a production board design. The board schematic establishes IP101 PHY address 1, PHY power GPIO51, MDC GPIO31, MDIO GPIO52, external RMII clock GPIO50, and the ESP32-P4 default RMII data pins. Cable contact orientation and the adapter's bridge revision remain to be physically inspected before CSI capture.
 
+Phase 2 firmware fill-ins for this bench stack are now recorded as follows:
+
+- TC358743 control bus: I2C0, SDA GPIO7, SCL GPIO8, 7-bit address `0x0f`.
+- CSI output: two lanes, with `972 Mbps` per lane retained as the configured
+  bring-up value from the reference path; this remains to be validated by the
+  raw-ingest gate.
+- Bridge reference clock: 27 MHz.
+- External bridge reset: not exposed by the selected adapter/cable path, so
+  reset is reported as unsupported; HPD is controlled through the bridge's
+  register interface.
+
 ## Canonical Video Test Source
 
 Bench validation will use one representative host as the canonical HDMI source. Every video milestone must be checked against both:

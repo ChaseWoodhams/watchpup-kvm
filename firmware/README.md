@@ -24,12 +24,14 @@ The firmware skeleton targets **ESP32-P4**. The top-level CMake file sets `IDF_T
 - stable `[diag]` serial boot and subsystem events
 - NVS, event loop, PSRAM self-test, and Waveshare IP101 Ethernet/DHCP initialization
 - a bench-only, read-only `GET /diag` schema-v1 endpoint
+- a diagnostics-only TC358743 I2C probe, fixed bring-up EDID load, HPD
+  sequencing, and HDMI/PLL/CSI status reporting
 - component manager dependencies for `espressif/esp_tinyusb` and `espressif/mdns`
 - `sdkconfig.defaults` and `sdkconfig.defaults.esp32p4` derived from `docs/research/esp-idf-skeleton-baseline.md`
 
 ## Explicitly Not Included Yet
 
-- HDMI capture
+- Raw CSI frame capture
 - JPEG or MJPEG streaming
 - HID control
 - ATX control
