@@ -150,3 +150,22 @@ dimensions. `0x05` indicates the adapter-side 5V/PHY-PLL state without the
 TMDS signal bit, so the remaining gate requires an actively outputting HDMI
 source. The CSI transmitter remains disabled as expected before Phase 3
 capture.
+
+## Test 005: Host HDMI Output and EDID Probe
+
+**Date:** 2026-07-13
+**Result:** **Host output configured; bridge EDID not enumerated**
+
+On the connected Windows host, NVIDIA display configuration reported an active
+HDMI target at `1024x768@60`. A Plug-and-Play display rescan and an HDMI
+unplug/replug did not change the enumeration: Windows continued to expose a
+`Default_Monitor` rather than the bridge's `DCDZ-H2C MOD` EDID. The host's
+registry contained a different cached `ACT8360` monitor profile named
+`Transmitter`; it did not contain the bridge EDID identity.
+
+The firmware EDID itself has valid base and extension-block checksums, and the
+ESP32 still reports `edid_loaded=true` and `hpd_asserted=true`. The bridge
+continues to report `sys_status=0x05`: DDC 5V and PHY PLL are present, but the
+TMDS signal bit is clear. This separates host display configuration from a
+working HDMI data path and leaves cable direction, adapter input/power, or
+source-to-adapter physical connectivity as the next checks.
