@@ -18,6 +18,7 @@ typedef struct {
     bool reset_supported;
     bool hpd_asserted;
     bool edid_loaded;
+    bool edid_readback_valid;
     uint16_t edid_length_bytes;
     const char *edid_revision;
     bool hdmi_signal_detected;
@@ -29,6 +30,24 @@ typedef struct {
     bool csi_output_enabled;
     uint32_t sys_status;
     uint32_t csi_status;
+    uint16_t sysctl;
+    uint16_t pllctl0;
+    uint16_t pllctl1;
+    bool refclk_readback_valid;
+    uint8_t sys_freq0;
+    uint8_t sys_freq1;
+    uint8_t fh_min0;
+    uint8_t fh_min1;
+    uint8_t fh_max0;
+    uint8_t fh_max1;
+    uint8_t lockdet_ref0;
+    uint8_t lockdet_ref1;
+    uint8_t lockdet_ref2;
+    uint8_t nco_f0_mod;
+    uint8_t edid_mode;
+    uint8_t phy_ctl0;
+    uint8_t phy_ctl1;
+    uint8_t phy_ctl2;
     uint8_t phy_en;
     uint8_t phy_rst;
     uint8_t hdmi_det;
@@ -36,6 +55,13 @@ typedef struct {
     uint8_t ddc_ctl;
     uint8_t hpd_ctl;
     uint8_t ana_ctl;
+    uint8_t sys_int;
+    uint8_t clk_int;
+    uint8_t hdmi_int0;
+    uint8_t hdmi_int1;
+    uint8_t vi_status1;
+    uint8_t vi_status3;
+    uint8_t init_end;
     int64_t last_init_success_ms;
     int64_t last_signal_lock_ms;
     uint32_t recovery_count;
@@ -45,4 +71,5 @@ typedef struct {
 } watchpup_tc358743_health_t;
 
 esp_err_t watchpup_tc358743_start(watchpup_tc358743_health_t *health);
+esp_err_t watchpup_tc358743_retrain(watchpup_tc358743_health_t *health);
 esp_err_t watchpup_tc358743_poll(watchpup_tc358743_health_t *health);
